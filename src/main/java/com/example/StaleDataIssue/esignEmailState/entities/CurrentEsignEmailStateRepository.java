@@ -1,5 +1,6 @@
 package com.example.StaleDataIssue.esignEmailState.entities;
 
+import jakarta.persistence.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -7,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Cacheable(value = false)
 public interface CurrentEsignEmailStateRepository extends JpaRepository<CurrentEsignEmailState, Integer> {
 
     @Query(value = "SELECT * from current_envelope_email_state where envelope_id = :envelopeId", nativeQuery = true)
