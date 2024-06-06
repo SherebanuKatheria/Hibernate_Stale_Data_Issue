@@ -20,9 +20,6 @@ public class ContractEnvelope {
     @Column(name = "contract_envelope_id")
     private String contractEnvelopId;
 
-    @Column(name = "sendInOrder")
-    private boolean sendInOrder;
-
     @ManyToMany
     @JoinTable(
             name = "contract_envelope_signatories",
@@ -31,8 +28,4 @@ public class ContractEnvelope {
     )
     @Nullable
     private List<Signatory> signatories;
-
-    @Column(name = "envelope_status")
-    @Enumerated(EnumType.STRING)
-    private ContractEnvelopeStatus envelopeStatus;
 }

@@ -22,11 +22,7 @@ public class Signatory {
 
     private String name;
 
-    private String email;
-
     private boolean isSigned;
 
-    private SignatoryType type;
-
-    private int signatoryOrder;
+    private String type;
 }

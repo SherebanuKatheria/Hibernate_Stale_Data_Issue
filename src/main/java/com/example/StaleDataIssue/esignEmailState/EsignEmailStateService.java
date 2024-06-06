@@ -1,10 +1,7 @@
 package com.example.StaleDataIssue.esignEmailState;
 
-import com.example.StaleDataIssue.entities.ContractEnvelope;
-import com.example.StaleDataIssue.entities.Signatory;
 import com.example.StaleDataIssue.esignEmailState.entities.CurrentEsignEmailState;
 import com.example.StaleDataIssue.esignEmailState.entities.CurrentEsignEmailStateRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -16,33 +13,32 @@ public class EsignEmailStateService {
     private final CurrentEsignEmailStateRepository currentEmailStateRepository;
     private final EsignEmailStateFactory emailStateFactory;
 
-    public CurrentEsignEmailState getCurrentState(String contractEnvelopeId) {
-        if(!currentEmailStateRepository.existsByEnvelopeId(contractEnvelopeId)){
+    public CurrentEsignEmailState getCurrentState() {
+        if(!currentEmailStateRepository.existsByEnvelopeId("contractEnvelope1")){
             currentEmailStateRepository.save(CurrentEsignEmailState.builder()
-                    .envelopeId(contractEnvelopeId)
+                    .envelopeId("contractEnvelope1")
                     .build());
         }
-        CurrentEsignEmailState stateObject  = currentEmailStateRepository.findByEnvelopeId(contractEnvelopeId);
+        CurrentEsignEmailState stateObject  = currentEmailStateRepository.findByEnvelopeId("contractEnvelope1");
         return stateObject;
     }
 
     @SneakyThrows
     @Transactional
-    public void nextState(ContractEnvelope contractEnvelope, Signatory signatory, HttpServletRequest request) {
-        CurrentEsignEmailState currentEsignEmailState = getCurrentState(contractEnvelope.getContractEnvelopId());
+    public void nextState() {
+        CurrentEsignEmailState currentEsignEmailState = getCurrentState();
         EsignEmailState currentState = emailStateFactory.createState(currentEsignEmailState.getCurrentState());
         System.out.println("Current State:" + currentState.getClass().getSimpleName());
-        if (currentState != null) {
-            EsignEmailState newCurrentState = currentState.nextState(contractEnvelope, signatory);
-            System.out.println("New Current State: " + newCurrentState.getClass().getSimpleName());
-            saveCurrentState(contractEnvelope.getContractEnvelopId(), newCurrentState.getClass().getSimpleName());
-            System.out.println("Current state from Database: " + currentEmailStateRepository.findByEnvelopeId(contractEnvelope.getContractEnvelopId()).getCurrentState());
-            newCurrentState.doAction(contractEnvelope, signatory, request);
-        }
+
+        EsignEmailState newCurrentState = currentState.nextState();
+        System.out.println("New Current State before saving: " + newCurrentState.getClass().getSimpleName());
+
+        saveCurrentState(newCurrentState.getClass().getSimpleName());
+        System.out.println("New Current state from Database after saving: " + currentEmailStateRepository.findByEnvelopeId("contractEnvelope1").getCurrentState());
     }
 
     @Transactional
-    private void saveCurrentState(String contractEnvelopeId, String state) {
-        currentEmailStateRepository.updateCurrentState(contractEnvelopeId, state);
+    private void saveCurrentState(String newstate) {
+        currentEmailStateRepository.updateCurrentState("contractEnvelope1", newstate);
     }
 }
